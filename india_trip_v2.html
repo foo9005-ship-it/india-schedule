@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>インド訪問団 日程表 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;}
+.app{max-width:600px;margin:0 auto;padding:12px 12px 48px;}
+h1{font-size:16px;font-weight:600;padding:14px 0 3px;}
+.sub{font-size:12px;color:#888;margin-bottom:10px;}
+.pnr{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:8px 12px;font-size:12px;color:#666;margin-bottom:12px;}
+.pnr strong{color:#1a1a1a;}
+.tabs{display:flex;gap:8px;margin-bottom:14px;}
+.tab{flex:1;padding:9px;font-size:13px;font-weight:600;border:1px solid #ddd;border-radius:10px;background:#fff;color:#666;cursor:pointer;}
+.tab.active{background:#1a56db;color:#fff;border-color:#1a56db;}
+.view{display:none;}
+.view.active{display:block;}
+.list-header{display:grid;grid-template-columns:70px 90px 1fr;gap:6px;padding:5px 8px;font-size:11px;font-weight:600;color:#888;border-bottom:1px solid #e0e0e0;margin-bottom:3px;}
+.list-row{display:grid;grid-template-columns:70px 90px 1fr;gap:6px;padding:8px;border-bottom:1px solid #ececec;cursor:pointer;border-radius:8px;background:#fff;margin-bottom:2px;}
+.list-row:active{background:#eef2ff;}
+.date-c{font-weight:600;font-size:12px;}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;line-height:1.5;}
+.act-c{font-size:11px;color:#666;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+select{width:100%;font-size:13px;padding:8px 10px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#1a1a1a;margin-bottom:12px;-webkit-appearance:none;}
+.card{background:#fff;border-radius:12px;border:1px solid #e8e8e8;padding:14px 16px;margin-bottom:10px;}
+.day-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+.sec-label{font-size:11px;font-weight:700;color:#888;letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px;}
+.flight-box{background:#f0f4ff;border-radius:8px;padding:9px 12px;margin-bottom:6px;border:1px solid #d8e4ff;}
+.flight-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.confirmed{color:#16a34a;font-size:11px;margin-left:6px;}
+.flight-info{font-size:12px;color:#555;}
+.hotel-link{color:#1a56db;text-decoration:none;font-size:13px;}
+.act-row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:13px;line-height:1.5;}
+.act-row:last-child{border-bottom:none;}
+.act-time{font-size:11.5px;color:#888;min-width:52px;flex-shrink:0;padding-top:2px;}
+.act-main{color:#1a1a1a;}
+.act-sub{font-size:12px;color:#666;margin-top:3px;}
+.nav-btns{display:flex;gap:8px;margin-top:8px;}
+.nav-btn{flex:1;padding:10px;font-size:13px;border:1px solid #ddd;border-radius:10px;background:#fff;color:#333;cursor:pointer;}
+.nav-btn:active{background:#f0f0f0;}
+.note-box{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;font-size:12px;color:#92400e;margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>インド訪問団 日程表 2026</h1>
+  <p class="sub">4月12日〜28日　JECI スキルエクセレンスセンター巡回ツアー</p>
+  <div class="pnr">IndiGo PNR: <strong>VY8V9G</strong>　Adachi / Matsumoto / Adhikary / Sueyoshi（4名）</div>
+  <div class="tabs">
+    <button class="tab active" onclick="showView('list')">一覧</button>
+    <button class="tab" onclick="showView('detail')">日別詳細</button>
+  </div>
+  <div id="view-list" class="view active">
+    <div class="list-header"><span>日付</span><span>場所</span><span>活動概要</span></div>
+    <div id="list-rows"></div>
+  </div>
+  <div id="view-detail" class="view">
+    <select id="day-select"></select>
+    <div id="detail-content"></div>
+    <div class="nav-btns">
+      <button class="nav-btn" onclick="changeDay(-1)">← 前日</button>
+      <button class="nav-btn" onclick="changeDay(1)">翌日 →</button>
+    </div>
+  </div>
+</div>
+<script>
+const days=[
+{date:"4/12(日)",city:"ハイデラバード着",bc:"#AFA9EC",tc:"#26215C",hotel:"Tabla Pride Hotels",hotelUrl:"https://tabla-pride.hyderabad-hotel.com/en/",flights:[{fn:"CX 627（Cathay Pacific）",dep:"HKG 21:35",arr:"HYD 00:50（4/13）",note:"Adachi・Sueyoshi搭乗",ok:true}],acts:[{t:"00:50",m:"ハイデラバード着・ホテルチェックイン",s:"深夜着のためそのまま休息"},{t:"",m:"Matsumoto・Adhikaryの到着便は別途確認",s:""}],note:""},
+{date:"4/13(月)",city:"ハイデラバード",bc:"#AFA9EC",tc:"#26215C",hotel:"Tabla Pride Hotels",hotelUrl:"https://tabla-pride.hyderabad-hotel.com/en/",flights:[],acts:[{t:"09:00",m:"JB Educational Society キャンパス到着",s:"JECIスキルエクセレンスセンター（JB Educational Society内）"},{t:"",m:"理事・学長・各学部長と面談",s:"JB Groupは複数学部を擁する総合教育機関"},{t:"",m:"日本代表団の歓迎式典",s:"JB Educational Society主催"},{t:"",m:"JECIスキルエクセレンスセンター見学",s:"キャンパス内に設置されたセンターを視察"},{t:"",m:"学生とのフリーインタラクション",s:"JBカレッジのウォークイン学生が日本代表団と自由交流"},{t:"15:30",m:"キャンパス出発",s:""}],note:""},
+{date:"4/14(火)",city:"ハイデラバード→VJA",bc:"#AFA9EC",tc:"#26215C",hotel:"Super Hotel O Ramavarapadu",hotelUrl:"",flights:[{fn:"バス移動（NH65経由）",dep:"HYD 15:30",arr:"VJA 約20:00",note:"275〜285km・約4.5時間　スリヤペット→コダド→ナンディガマ→ヴィジャヤワダ",ok:false}],acts:[{t:"09:00",m:"JB Educational Society 2日目",s:""},{t:"",m:"全学生・教員向け日本就職・進学講演",s:"日本でのキャリア・留学・海外就職機会について"},{t:"",m:"JB Educational Societyキャンパス全体ウォークスルー",s:"複数カレッジを見学"},{t:"14:30",m:"キャンパス出発",s:""},{t:"15:30",m:"バスでヴィジャヤワダへ出発",s:"NH65（国道65号）ルート"},{t:"20:00",m:"ヴィジャヤワダ着",s:"夕食後ホテルにて休息"}],note:""},
+{date:"4/15(水)",city:"ヴィジャヤワダ",bc:"#9FE1CB",tc:"#04342C",hotel:"Super Hotel O Ramavarapadu",hotelUrl:"",flights:[],acts:[{t:"09:00",m:"Chitturi Vidyalayam（チットゥリ・ヴィドャラヤム）到着",s:"Sri Chitturi Visweswararao Trust運営"},{t:"",m:"理事・管理職・教員との面談",s:""},{t:"",m:"日本代表団の歓迎式典",s:"Sri Chitturi Visweswararao Trust主催"},{t:"",m:"キャンパスウォークスルー",s:""},{t:"",m:"JECIスキルエクセレンスセンター見学",s:"Chitturi Vidyalayamキャンパス内"},{t:"",m:"全教員向け日本就職・進学講演",s:"日本でのキャリア・留学・海外就職機会について"},{t:"",m:"教員・保護者との交流会",s:"日本代表団とのフリーインタラクション"},{t:"16:30",m:"キャンパス出発",s:""}],note:""},
+{date:"4/16(木)",city:"コーチン着",bc:"#B5D4F4",tc:"#042C53",hotel:"（コーチン泊・未記載）",hotelUrl:"",flights:[{fn:"6E 7072（ATR）",dep:"VGA 12:55",arr:"BLR 14:35",note:"CI締切 11:55",ok:true},{fn:"6E 2138（A320）",dep:"BLR 15:50",arr:"COK 16:50",note:"乗継75分・CI締切 14:50",ok:true}],acts:[{t:"午前",m:"Chitturi Vidyalayam活動続き",s:"空港へ向かう前に終了"},{t:"11:55",m:"ヴィジャヤワダ空港チェックイン締切",s:""},{t:"12:55",m:"VGA発 → BLR着14:35",s:"6E 7072（ATR機）"},{t:"15:50",m:"BLR発 → COK着16:50",s:"6E 2138（A320）　バンガロール乗継75分"},{t:"夕方",m:"コーチン着・ホテルチェックイン",s:"夕食後休息"}],note:"コーチン泊ホテルは未確定"},
+{date:"4/17(金)",city:"コッタヤム",bc:"#FAC775",tc:"#412402",hotel:"Hotel Aida",hotelUrl:"https://www.hotelaida.in/",flights:[{fn:"車移動",dep:"コーチン 05:00",arr:"コッタヤム 約08:30",note:"コーチン→トリプニトゥラ→ヴァイコム→コッタヤム　約60km・3〜3.5時間",ok:false}],acts:[{t:"05:00",m:"コーチン出発（車）",s:"コーチン→トリプニトゥラ→ヴァイコム→コッタヤム　約60km"},{t:"08:30",m:"コッタヤム着",s:""},{t:"09:00",m:"Saintgits Group of Institutions 到着",s:"saintgits.org"},{t:"",m:"理事・学長・各学部長と面談",s:"Saintgits College of Engineering"},{t:"",m:"日本代表団の歓迎式典",s:"Saintgits主催"},{t:"",m:"キャンパスウォークスルー・JECIスキルセンター見学",s:""},{t:"11:30",m:"全学生・教員向け講演（〜13:30）",s:"日本でのキャリア・留学・海外就職機会について"},{t:"13:45",m:"学生とのフリーインタラクション（〜14:45）",s:""},{t:"15:00",m:"Saintgitsシティセンターキャンパス訪問（〜16:00）",s:"コッタヤム市内の第2キャンパス"},{t:"16:15",m:"ホテルへ戻る",s:""}],note:""},
+{date:"4/18(土)",city:"ティルヴァナンタプラム",bc:"#F4C0D1",tc:"#4B1528",hotel:"Oceana (Airbnb)",hotelUrl:"https://www.airbnb.co.in/rooms/14578895",flights:[{fn:"車移動（NH66経由）",dep:"コッタヤム 05:00",arr:"TRV 約09:30",note:"コッタヤム→アラップーザ→コッラム→TRV　155〜165km・4〜5時間",ok:false}],acts:[{t:"05:00",m:"コッタヤム出発（車）",s:"NH66　→アラップーザ→コッラム→ティルヴァナンタプラム"},{t:"09:30",m:"ティルヴァナンタプラム着・ホテルチェックイン",s:""},{t:"",m:"パドマナーバスワーミ寺院見学",s:"ケーララ州最大の寺院。ヴィシュヌ神を祀る"},{t:"",m:"ネイピール博物館見学",s:"19世紀の歴史的建造物・自然史博物館"},{t:"",m:"コヴァラム・ビーチ観光",s:"アラビア海沿いのリゾートビーチ"},{t:"",m:"プーヴァル島観光",s:"バックウォーターに浮かぶ美しい島"},{t:"",m:"オプション：ヴァルカラビーチまたはネイヤーダム",s:""}],note:""},
+{date:"4/19(日)",city:"コルカタ",bc:"#C0DD97",tc:"#173404",hotel:"55 B",hotelUrl:"https://www.55b.in/",flights:[{fn:"6E 5368（A320）",dep:"TRV 07:35",arr:"HYD 09:25",note:"CI締切 06:35",ok:true},{fn:"6E 376（A321）",dep:"HYD 11:55",arr:"CCU 14:10",note:"乗継150分・CI締切 10:55",ok:true}],acts:[{t:"06:35",m:"ティルヴァナンタプラム空港チェックイン締切",s:""},{t:"07:35",m:"TRV発 → HYD着09:25",s:"6E 5368（A320）　飛行時間約1時間50分"},{t:"11:55",m:"HYD発 → CCU着14:10",s:"6E 376（A321）　飛行時間約2時間15分"},{t:"16:30",m:"ホテルへ移動・チェックイン",s:""},{t:"18:00",m:"夕食：6 Ballygunge Place",s:"コルカタの名門ベンガル料理レストラン"}],note:""},
+{date:"4/20(月)",city:"コルカタ",bc:"#C0DD97",tc:"#173404",hotel:"55 B",hotelUrl:"https://www.55b.in/",flights:[],acts:[{t:"08:30",m:"ホテル出発",s:""},{t:"09:45",m:"JIMSH（ジャガンナート・グプタ医科大学病院）到着",s:"jimsh.org"},{t:"",m:"理事・学長・学部長・各科長と面談",s:""},{t:"",m:"キャンパスウォークスルー・歓迎式典",s:""},{t:"11:30",m:"全学生・教員向け講演（〜12:30）",s:""},{t:"12:30",m:"学生とのフリーインタラクション（〜12:45）",s:""},{t:"13:00",m:"昼食（〜13:45）",s:""},{t:"14:00",m:"JECIスキルエクセレンスセンター候補地視察（〜14:30）",s:"JIMSH内の設置予定場所を確認"},{t:"14:45",m:"BBIT（ブッジブッジ工科大学）訪問（〜16:00）",s:"bbit.edu.in　キャンパスウォークスルー"},{t:"16:15",m:"ホテルへ出発・夕食・休息",s:""}],note:""},
+{date:"4/21(火)",city:"コルカタ",bc:"#C0DD97",tc:"#173404",hotel:"55 B",hotelUrl:"https://www.55b.in/",flights:[],acts:[{t:"09:00",m:"空手イベント会場到着",s:"全インド清真会糸東流空手道連盟（Seishinkai Shito Ryu）"},{t:"",m:"国際・全国チャンピオンによる型（カタ）演武",s:""},{t:"",m:"松本さんによる特別ワークショップ",s:""},{t:"",m:"JECI感謝状授与",s:"参加学生全員に「参加証」を授与"},{t:"13:00",m:"会場出発",s:""},{t:"17:30",m:"B2B産学交流会（カルカッタ・ローイングクラブ）",s:"アジア最古のローイングクラブ（1858年創設）。学術界・産業界の専門家と交流"},{t:"20:00",m:"ローイングクラブ出発",s:""},{t:"20:30",m:"ホテル着・夕食・休息",s:""}],note:""},
+{date:"4/22(水)",city:"ボンガーイガオン",bc:"#F5C4B3",tc:"#4A1B0C",hotel:"Jahnabee Regency",hotelUrl:"https://www.instagram.com/reel/DNsHUQbUmeM/",flights:[{fn:"6E 212（A320）",dep:"CCU 09:00",arr:"GAU 10:15",note:"CI締切 08:00",ok:true},{fn:"車移動",dep:"GAU 13:00",arr:"BNG 約16:30",note:"約3.5時間　※グワーハーティはホテルなし",ok:false}],acts:[{t:"05:00",m:"ホテル出発・コルカタ空港へ",s:""},{t:"09:00",m:"CCU発 → GAU着10:15",s:"6E 212（A320）　飛行時間約1時間15分"},{t:"12:30",m:"グワーハーティで昼食",s:""},{t:"13:00",m:"グワーハーティ出発（車）→ ボンガーイガオンへ",s:"約160km・約3.5時間　※グワーハーティはホテルなし"},{t:"16:30",m:"ボンガーイガオン着・ホテルチェックイン",s:""}],note:""},
+{date:"4/23(木)",city:"ボンガーイガオン",bc:"#F5C4B3",tc:"#4A1B0C",hotel:"Jahnabee Regency",hotelUrl:"https://www.instagram.com/reel/DNsHUQbUmeM/",flights:[],acts:[{t:"09:00",m:"Reiyukai Foundation・Braintree International School 到着",s:"rkfoundation.ngo"},{t:"",m:"理事・教員との面談",s:""},{t:"09:30",m:"日本代表団の歓迎式典（〜09:40）",s:""},{t:"09:45",m:"Braintree International Schoolキャンパスウォークスルー（〜10:00）",s:""},{t:"10:10",m:"JECIスキルエクセレンスセンター見学（〜10:40）",s:"周辺の学校・大学・農業機関の校長・学部長なども参加"},{t:"10:50",m:"全学生・教員向け講演（〜11:45）",s:""},{t:"12:00",m:"学生とのフリーインタラクション（〜13:30）",s:"ボンガーイガオン周辺のウォークイン学生"},{t:"13:40",m:"昼食（〜14:10）",s:""},{t:"14:30",m:"近隣茶園見学（〜16:30）",s:"アッサムの茶畑を視察"},{t:"17:30",m:"ホテル着・夕食・休息",s:""}],note:""},
+{date:"4/24(金)",city:"グルガオン",bc:"#B5D4F4",tc:"#042C53",hotel:"Limewood Stay Service Apt.",hotelUrl:"https://staylimewood.com/",flights:[{fn:"車移動",dep:"BNG 05:30",arr:"GAU 約10:00",note:"途中ナルバリで朝食",ok:false},{fn:"6E 6150（A321）",dep:"GAU 17:00",arr:"DEL 19:35",note:"CI締切 16:00　直行便",ok:true}],acts:[{t:"05:30",m:"ボンガーイガオン出発（車）",s:"途中ナルバリで朝食"},{t:"10:00",m:"グワーハーティ着",s:""},{t:"11:00",m:"政府スキル開発局との面談（〜12:30）",s:"グワーハーティ"},{t:"13:00",m:"グワーハーティで昼食（〜14:00）",s:""},{t:"14:30",m:"グワーハーティ空港へ出発",s:""},{t:"17:00",m:"GAU発 → DEL着19:35",s:"6E 6150（A321）　直行便・飛行時間約2時間35分"},{t:"夜",m:"デリー着・グルガオンへ車移動・ホテルチェックイン",s:"※デリーはホテルなし"}],note:""},
+{date:"4/25(土)",city:"グルガオン",bc:"#B5D4F4",tc:"#042C53",hotel:"Limewood Stay Service Apt.",hotelUrl:"https://staylimewood.com/",flights:[],acts:[{t:"09:00",m:"JECI事務局（グルガオン）到着",s:""},{t:"09:30",m:"ツアー総括・今後計画策定ミーティング（〜12:00）",s:"JECI・各日本人専門家の役割と責任の確認"},{t:"12:30",m:"パンジャービ料理ランチ（〜13:30）",s:"インド北部の本格的な郷土料理"},{t:"14:30",m:"NSDC（国家スキル開発公社）との面談（〜16:30）",s:"インド政府の職業訓練推進機関"},{t:"17:00",m:"サイバーハブ（DLF Cyber Hub）視察",s:"グルガオンのITコーポレート文化の中心地"},{t:"18:30",m:"Coco Ichibanya で夕食（〜19:30）",s:"インド市場向けメニューを提供する日本式カレーチェーン"},{t:"20:15",m:"ホテル着・休息",s:""}],note:""},
+{date:"4/26(日)",city:"ヴリンダーヴァン・アーグラー",bc:"#FAC775",tc:"#412402",hotel:"Limewood Stay（グルガオン泊）",hotelUrl:"https://staylimewood.com/",flights:[{fn:"バス/車（日帰り・ヤムナ高速道路経由）",dep:"グルガオン 05:00",arr:"グルガオン 約21:30",note:"総走行距離約220〜230km",ok:false}],acts:[{t:"05:00",m:"グルガオン出発（バスまたは車）",s:"ヤムナ・エクスプレスウェイ経由"},{t:"07:30",m:"ヴリンダーヴァン着",s:"クリシュナ神の生誕地・ヒンドゥー教の聖地"},{t:"07:30",m:"ギリラージ・ゴヴァルダン・マハラジ寺院訪問",s:""},{t:"07:50",m:"ISKCON クリシュナ寺院訪問・ゴーヴィンダ・レストランで朝食（〜09:50）",s:"インド最高峰の純粋菜食料理。一生に一度は体験すべき食事"},{t:"10:00",m:"タージマハルへ出発",s:""},{t:"11:00",m:"タージマハル見学（〜13:30）",s:"世界遺産・世界七不思議の一つ"},{t:"13:45",m:"タージマハル周辺でランチ（〜14:30）",s:""},{t:"14:45",m:"アーグラー城へ出発",s:""},{t:"15:30",m:"アーグラー城見学（〜17:30）",s:"ムガル帝国の要塞・世界遺産"},{t:"17:45",m:"グルガオンへ出発",s:""},{t:"21:30",m:"グルガオン着・夕食・休息",s:""}],note:""},
+{date:"4/27(月)",city:"ノイダ（グルガオン発着）",bc:"#B5D4F4",tc:"#042C53",hotel:"Limewood Stay（グルガオン泊）",hotelUrl:"https://staylimewood.com/",flights:[{fn:"車（日帰り）",dep:"グルガオン 朝",arr:"グルガオン 夜",note:"",ok:false}],acts:[{t:"",m:"ノイダの高等教育機関2校を訪問",s:"機関名は当日確認。JECIスキルセンターは未設置"},{t:"",m:"各大学幹部・教員との面談・キャンパス視察",s:""}],note:"訪問機関名は確認次第更新予定"},
+{date:"4/28(火)",city:"デリー出発・帰国",bc:"#AFA9EC",tc:"#26215C",hotel:"チェックアウト",hotelUrl:"",flights:[{fn:"Cathay Pacific（DEL→福岡）",dep:"DEL 22:45",arr:"福岡",note:"",ok:false}],acts:[{t:"17:00",m:"ホテル出発",s:"渋滞が予想されるため早めに出発"},{t:"18:30",m:"インディラ・ガンジー国際空港着",s:"チェックイン・出国手続き"},{t:"22:45",m:"Cathay Pacific 搭乗・帰国",s:"福岡へ"}],note:""}
+];
+
+let cur=0;
+function badge(d){return`<span class="badge" style="background:${d.bc};color:${d.tc}">${d.city}</span>`;}
+function renderList(){document.getElementById('list-rows').innerHTML=days.map((d,i)=>`<div class="list-row" onclick="goDetail(${i})"><span class="date-c">${d.date}</span><span>${badge(d)}</span><span class="act-c">${d.acts.map(a=>(a.t?a.t+' ':'')+a.m).join('　')}</span></div>`).join('');}
+function renderSelect(){const s=document.getElementById('day-select');s.innerHTML=days.map((d,i)=>`<option value="${i}">${d.date}　${d.city}</option>`).join('');s.onchange=e=>{cur=parseInt(e.target.value);renderDetail();};}
+function renderDetail(){
+  const d=days[cur];
+  document.getElementById('day-select').value=cur;
+  const fl=d.flights.length?`<div class="sec-label">移動</div>${d.flights.map(f=>`<div class="flight-box"><div class="flight-name">${f.fn}${f.ok?'<span class="confirmed">✓確定</span>':''}</div><div class="flight-info">${f.dep} → ${f.arr}${f.note?'　'+f.note:''}</div></div>`).join('')}`:'';
+  const ht=`<div class="sec-label">宿泊</div><div class="card" style="padding:10px 14px;">${d.hotelUrl?`<a class="hotel-link" href="${d.hotelUrl}">${d.hotel}</a>`:`<span style="font-size:13px;color:#888">${d.hotel}</span>`}</div>`;
+  const ac=`<div class="sec-label">活動スケジュール</div><div class="card" style="padding:10px 14px;">${d.acts.map(a=>`<div class="act-row"><span class="act-time">${a.t||''}</span><span class="act-main">${a.m}${a.s?`<div class="act-sub">${a.s}</div>`:''}</span></div>`).join('')}</div>`;
+  const nt=d.note?`<div class="note-box">${d.note}</div>`:'';
+  document.getElementById('detail-content').innerHTML=`<div class="card"><div class="day-title">${d.date}</div><div style="margin-bottom:6px">${badge(d)}</div>${fl}${ht}${ac}${nt}</div>`;
+}
+function goDetail(i){cur=i;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.view').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab')[1].classList.add('active');document.getElementById('view-detail').classList.add('active');renderDetail();}
+function showView(v){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.view').forEach(t=>t.classList.remove('active'));if(v==='list'){document.querySelectorAll('.tab')[0].classList.add('active');document.getElementById('view-list').classList.add('active');}else{document.querySelectorAll('.tab')[1].classList.add('active');document.getElementById('view-detail').classList.add('active');renderDetail();}}
+function changeDay(d){cur=Math.max(0,Math.min(days.length-1,cur+d));renderDetail();}
+renderList();renderSelect();
+</script>
+</body>
+</html>
