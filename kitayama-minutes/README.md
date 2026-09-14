@@ -32,7 +32,7 @@ Zoom録画 → 文字起こし → AI要約(JSON) → Word議事録(.docx)生成
 | `src/generate_minutes.py` | ✅ 完成・動作確認済み |
 | `src/drive_sync.py` | ✅ サービスアカウント作成・Drive API接続・疎通確認まで完了（プロジェクト`giziroku-508607`） |
 | `prompts/system_prompt_v2.md` | ✅ 完成（Step3用システムプロンプト） |
-| Zoom Webhook受信 | ❌ 未実装 |
+| `src/zoom_webhook.py` / `src/app.py` | ✅ 実装・ローカル動作確認済み（署名検証／URL検証／文字起こしファイル抽出） |
 | Lambda/Cloud Functions統合ハンドラ | ❌ 未実装（`src/drive_sync.py`内にサンプルコードのみ） |
 | デプロイ（Make / Lambda / Cloud Functions） | ❌ 未着手 |
 
@@ -45,8 +45,10 @@ kitayama-minutes/
 ├── .env.example                  環境変数テンプレート（実値は.envに、Git管理外）
 ├── src/
 │   ├── generate_minutes.py       Step4: JSON→docx生成（完成済み）
-│   ├── drive_sync.py             Step5: Google Drive連携（要サービスアカウント接続）
-│   ├── zoom_webhook.py           Step1: Zoom Webhook受信（未実装スタブ）
+│   ├── drive_sync.py             Step5: Google Drive連携（接続済み）
+│   ├── zoom_webhook.py           Step1: Zoom Webhookの中核処理（実装済み・フレームワーク非依存）
+│   ├── app.py                    Step1: ローカル動作確認用Flaskサーバー
+│   ├── test_drive_connection.py  Drive接続確認スクリプト
 │   └── handler.py                Lambda/Cloud Functions統合ハンドラ（未実装スタブ）
 ├── prompts/
 │   └── system_prompt_v2.md       Step3用 Anthropic APIシステムプロンプト
@@ -57,12 +59,21 @@ kitayama-minutes/
 │   ├── gcp/                      GCP Cloud Functionsデプロイ設定
 │   └── make/                     Makeシナリオでデプロイする場合のメモ
 └── tests/
-    └── sample_data.json          generate_minutes.py 動作確認用のサンプルJSON
+    ├── sample_data.json          generate_minutes.py 動作確認用のサンプルJSON
+    └── test_zoom_webhook.py      zoom_webhook.py のユニットテスト
 ```
 
 ## 今後の作業（優先順位は要相談）
 
-1. Zoomの録画完了Webhook（`recording.completed`）受信部分の実装 → `src/zoom_webhook.py`
+1. ~~Zoomの録画完了Webhook（`recording.completed`）受信部分の実装~~ ✅ 完了（2026-09-14）
+   - `src/zoom_webhook.py`: 署名検証・URL検証チャレンジ応答・文字起こしファイル抽出・VTTダウンロード
+   - `src/app.py`: ローカル動作確認用Flaskサーバー（`/webhook/zoom`）。デプロイ方式未定のため
+     フレームワーク非依存の`handle_webhook_request()`をラップするだけの薄い作りにしてある
+   - `tests/test_zoom_webhook.py`: 8件のユニットテスト、すべてパス
+   - ⚠️ **未実施**: 実際のZoom Appでのイベント購読設定、および本物のWebhookイベントでの
+     疎通確認（ローカルサーバーを外部公開する必要があるため。下記「Zoom側の設定」を参照）
+   - ⚠️ **未実装**: 受理した`recording.completed`を実際にStep2以降（VTTダウンロード→
+     AI要約→docx生成→アップロード）につなげる部分は、Step4（Lambda統合）で行う想定
 2. ~~Google Cloudサービスアカウント作成・Drive API接続~~ ✅ 完了（2026-09-14）
    - サービスアカウント: `kitayama-minutes-drive-sync@giziroku-508607.iam.gserviceaccount.com`
    - 対象フォルダを、既存の手動運用フォルダ「２議事録」とは別に新規作成:
@@ -87,3 +98,29 @@ python3 src/generate_minutes.py \
 ```
 
 `templates/` には過去に生成済みの打合せ記録簿（ベースファイル）を1つ手動で配置してください。
+
+## Zoom Webhookのローカル動作確認
+
+```bash
+cd kitayama-minutes
+export ZOOM_WEBHOOK_SECRET_TOKEN=任意のテスト用文字列
+python3 src/app.py
+# 別ターミナルで
+curl -X POST http://127.0.0.1:8080/webhook/zoom -H "Content-Type: application/json" \
+  -d '{"event":"endpoint.url_validation","payload":{"plainToken":"abc123"}}'
+```
+
+## Zoom側の設定（未実施・今後の作業）
+
+1. https://marketplace.zoom.us/develop/create でApp（General App、またはWebhook Only）を作成
+2. 「Feature」→「Event Subscriptions」で `Recording > All Recordings have completed`
+   （`recording.completed`）を購読イベントに追加
+3. Webhook URLには `src/app.py` を外部公開したURL（例: ngrokで一時公開、または本番デプロイ後のURL）
+   の `/webhook/zoom` を指定
+4. Zoomがこの時点で `endpoint.url_validation` イベントを送ってくるので、
+   `ZOOM_WEBHOOK_SECRET_TOKEN`（App詳細画面の「Secret Token」）を環境変数に設定した状態で
+   正しく応答できることを確認する
+5. App詳細画面から実際にSecret Tokenを控え、`.env` の `ZOOM_WEBHOOK_SECRET_TOKEN` に設定
+
+現時点では手元でのユニットテストとローカルFlaskサーバーでの動作確認のみ実施済みで、
+実際のZoom Appからの疎通確認はまだ行っていません。

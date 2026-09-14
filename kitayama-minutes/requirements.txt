@@ -5,8 +5,9 @@
 google-api-python-client
 google-auth
 
-# --- Step1: zoom_webhook.py（実装時に使用） ---
-# flask もしくは fastapi + uvicorn（デプロイ先に応じて選択）
+# --- Step1: zoom_webhook.py / app.py ---
+flask
+requests
 
 # --- Step3: Anthropic API呼び出し（実装時に使用） ---
 # anthropic
