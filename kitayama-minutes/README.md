@@ -6,14 +6,14 @@ Zoom録画 → 文字起こし → AI要約(JSON) → Word議事録(.docx)生成
 ## 全体フロー
 
 ```
-1. Zoom Webhook (recording.completed)
+1. Zoom Webhook (recording.completed)        src/zoom_webhook.py : handle_webhook_request()
        │  録画完了を検知
        ▼
-2. 文字起こし(VTT)取得
+2. 文字起こし(VTT)取得                        src/zoom_webhook.py : download_transcript_vtt()
        │
        ▼
-3. Anthropic API /v1/messages
-   system = prompts/system_prompt_v2.md
+3. Anthropic API /v1/messages                src/summarize.py : summarize_transcript()
+   system = prompts/system_prompt_v2.txt
        │  文字起こし → 構造化JSON
        ▼
 4. src/generate_minutes.py : generate(base, data, out)
@@ -23,6 +23,8 @@ Zoom録画 → 文字起こし → AI要約(JSON) → Word議事録(.docx)生成
        │  最新テンプレート取得 / 生成物アップロード
        ▼
    Google Drive上の議事録フォルダ
+
+上記1〜5すべてを src/handler.py : process_recording() / lambda_handler() が結合している。
 ```
 
 ## 現状（2026-09-14時点）
@@ -33,7 +35,8 @@ Zoom録画 → 文字起こし → AI要約(JSON) → Word議事録(.docx)生成
 | `src/drive_sync.py` | ✅ サービスアカウント作成・Drive API接続・疎通確認まで完了（プロジェクト`giziroku-508607`） |
 | `prompts/system_prompt_v2.md` | ✅ 完成（Step3用システムプロンプト） |
 | `src/zoom_webhook.py` / `src/app.py` | ✅ 実装・ローカル動作確認済み（署名検証／URL検証／文字起こしファイル抽出） |
-| Lambda/Cloud Functions統合ハンドラ | ❌ 未実装（`src/drive_sync.py`内にサンプルコードのみ） |
+| `src/summarize.py`（Step3: Anthropic API要約） | ✅ 実装済み（`claude-opus-5`）。実APIでの動作確認は未実施 |
+| `src/handler.py`（Lambda統合ハンドラ） | ✅ 実装済み。Webhook受信→VTT取得→AI要約→docx生成→Driveアップロードを1関数に結合。ユニットテストのみ（実インフラでの疎通は未確認） |
 | デプロイ（Make / Lambda / Cloud Functions） | ❌ 未着手 |
 
 ## フォルダ構成
@@ -46,12 +49,14 @@ kitayama-minutes/
 ├── src/
 │   ├── generate_minutes.py       Step4: JSON→docx生成（完成済み）
 │   ├── drive_sync.py             Step5: Google Drive連携（接続済み）
-│   ├── zoom_webhook.py           Step1: Zoom Webhookの中核処理（実装済み・フレームワーク非依存）
+│   ├── zoom_webhook.py           Step1-2: Zoom Webhook受信・VTTダウンロード（実装済み・フレームワーク非依存）
 │   ├── app.py                    Step1: ローカル動作確認用Flaskサーバー
-│   ├── test_drive_connection.py  Drive接続確認スクリプト
-│   └── handler.py                Lambda/Cloud Functions統合ハンドラ（未実装スタブ）
+│   ├── summarize.py              Step3: Anthropic APIでの文字起こし要約（実装済み）
+│   ├── handler.py                全ステップを結合したLambdaハンドラ（実装済み）
+│   └── test_drive_connection.py  Drive接続確認スクリプト
 ├── prompts/
-│   └── system_prompt_v2.md       Step3用 Anthropic APIシステムプロンプト
+│   ├── system_prompt_v2.md       Step3用 Anthropic APIシステムプロンプト（ドキュメント）
+│   └── system_prompt_v2.txt      同内容のプレーンテキスト（summarize.pyが実際に読み込む実体）
 ├── templates/
 │   └── （最新の「打合せ記録簿_北山文化圏センター_*.docx」を置く。Git管理外）
 ├── infra/
@@ -60,7 +65,9 @@ kitayama-minutes/
 │   └── make/                     Makeシナリオでデプロイする場合のメモ
 └── tests/
     ├── sample_data.json          generate_minutes.py 動作確認用のサンプルJSON
-    └── test_zoom_webhook.py      zoom_webhook.py のユニットテスト
+    ├── test_zoom_webhook.py      zoom_webhook.py のユニットテスト
+    ├── test_summarize.py         summarize.py のユニットテスト
+    └── test_handler.py           handler.py のユニットテスト（外部サービスは全てモック）
 ```
 
 ## 今後の作業（優先順位は要相談）
@@ -83,8 +90,22 @@ kitayama-minutes/
    - `get_latest_base()`用の初期ベースファイルとして、既存フォルダから
      `打合せ記録簿_北山文化圏センター_20260821.docx` をコピー済み
    - 旧フォルダ「２議事録」（`1_brqDoUoSx5kjIn5uGXOAn7Snzvmktjd`）は今後この用途では使わない
-3. Make シナリオ、または AWS Lambda / GCP Cloud Functions としてデプロイ → `infra/`
-4. `generate_minutes.py` と `drive_sync.py` を1つのLambdaハンドラとして結合 → `src/handler.py`
+3. Make シナリオ、または AWS Lambda / GCP Cloud Functions としてデプロイ → `infra/`（未着手）
+4. ~~`generate_minutes.py` と `drive_sync.py` を1つのLambdaハンドラとして結合~~ ✅ 完了（2026-09-14）
+   - 結合にあたり、全体フローのStep3（Anthropic APIでの文字起こし要約）が
+     コードとして未実装だったため、`src/summarize.py` として新規実装した
+     （`prompts/system_prompt_v2.txt` をsystemプロンプトに、`claude-opus-5`を使用）
+   - `src/handler.py`: `process_recording()`（VTT取得→AI要約→docx生成→アップロードの
+     中核処理、デプロイ方式非依存）と `lambda_handler()`（API Gatewayプロキシ統合向けの
+     薄いラッパー）の2関数構成
+   - `tests/test_handler.py` / `tests/test_summarize.py`: 外部サービス（Zoom/Anthropic/
+     Google Drive）を全てモック化したユニットテスト、あわせて12件パス
+   - ⚠️ **未実施**: 実際のAnthropic APIキー・実インフラ（Lambda/API Gateway）での
+     エンドツーエンドの動作確認。現状はモックによるロジック検証のみ
+   - ⚠️ **設計メモ**: Zoomは3秒以内の応答を要求するが、`process_recording()`は
+     数秒〜数十秒かかりうる処理を含む。現在`lambda_handler()`は同期的に呼び出して
+     いるため、本番運用前にWebhook受信と本処理を非同期に分離することを検討する
+     （Step3のデプロイ方式が決まってから対応）
 
 ## ローカルでの動作確認
 

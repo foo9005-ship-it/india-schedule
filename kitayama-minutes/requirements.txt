@@ -9,5 +9,5 @@ google-auth
 flask
 requests
 
-# --- Step3: Anthropic API呼び出し（実装時に使用） ---
-# anthropic
+# --- Step3: Anthropic API呼び出し ---
+anthropic
