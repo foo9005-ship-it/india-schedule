@@ -37,7 +37,7 @@ Zoom録画 → 文字起こし → AI要約(JSON) → Word議事録(.docx)生成
 | `src/zoom_webhook.py` / `src/app.py` | ✅ 実装・ローカル動作確認済み（署名検証／URL検証／文字起こしファイル抽出） |
 | `src/summarize.py`（Step3: Anthropic API要約） | ✅ 実装済み（`claude-opus-5`）。実APIでの動作確認は未実施 |
 | `src/handler.py`（Lambda統合ハンドラ） | ✅ 実装済み。Webhook受信→VTT取得→AI要約→docx生成→Driveアップロードを1関数に結合。ユニットテストのみ（実インフラでの疎通は未確認） |
-| デプロイ（Make / Lambda / Cloud Functions） | ❌ 未着手 |
+| デプロイ（AWS Lambda） | 🔧 Dockerfile・SAMテンプレート・手順書を用意済み。実際の`docker build`/`sam deploy`は未実施（下記参照） |
 
 ## フォルダ構成
 
@@ -53,21 +53,28 @@ kitayama-minutes/
 │   ├── app.py                    Step1: ローカル動作確認用Flaskサーバー
 │   ├── summarize.py              Step3: Anthropic APIでの文字起こし要約（実装済み）
 │   ├── handler.py                全ステップを結合したLambdaハンドラ（実装済み）
-│   └── test_drive_connection.py  Drive接続確認スクリプト
+│   ├── test_drive_connection.py  Drive接続確認スクリプト
+│   └── vendor/                   Claude Codeのdocxスキルに依存しないためのvendorコード
+│       ├── merge_runs.py             docxスキルのmerge_runs.pyを同梱（Lambda等で使用）
+│       └── office/helpers/__init__.py  同スキルの依存モジュール（標準ライブラリのみ）
 ├── prompts/
 │   ├── system_prompt_v2.md       Step3用 Anthropic APIシステムプロンプト（ドキュメント）
 │   └── system_prompt_v2.txt      同内容のプレーンテキスト（summarize.pyが実際に読み込む実体）
 ├── templates/
 │   └── （最新の「打合せ記録簿_北山文化圏センター_*.docx」を置く。Git管理外）
 ├── infra/
-│   ├── lambda/                   AWS Lambdaデプロイ設定（SAM/Terraform等）
-│   ├── gcp/                      GCP Cloud Functionsデプロイ設定
-│   └── make/                     Makeシナリオでデプロイする場合のメモ
+│   ├── lambda/                   AWS Lambdaデプロイ設定
+│   │   ├── Dockerfile                Lambdaコンテナイメージ定義
+│   │   ├── template.yaml             AWS SAMテンプレート（Lambda + API Gateway HTTP API）
+│   │   └── README.md                 デプロイ手順
+│   ├── gcp/                      GCP Cloud Functionsデプロイ設定（今回は不採用）
+│   └── make/                     Makeシナリオでデプロイする場合のメモ（今回は不採用）
 └── tests/
     ├── sample_data.json          generate_minutes.py 動作確認用のサンプルJSON
     ├── test_zoom_webhook.py      zoom_webhook.py のユニットテスト
     ├── test_summarize.py         summarize.py のユニットテスト
-    └── test_handler.py           handler.py のユニットテスト（外部サービスは全てモック）
+    ├── test_handler.py           handler.py のユニットテスト（外部サービスは全てモック）
+    └── test_generate_minutes.py  vendor化したmerge_runs.pyの健全性テスト
 ```
 
 ## 今後の作業（優先順位は要相談）
@@ -90,7 +97,22 @@ kitayama-minutes/
    - `get_latest_base()`用の初期ベースファイルとして、既存フォルダから
      `打合せ記録簿_北山文化圏センター_20260821.docx` をコピー済み
    - 旧フォルダ「２議事録」（`1_brqDoUoSx5kjIn5uGXOAn7Snzvmktjd`）は今後この用途では使わない
-3. Make シナリオ、または AWS Lambda / GCP Cloud Functions としてデプロイ → `infra/`（未着手）
+3. AWS Lambdaとしてデプロイ → `infra/lambda/`（🔧 準備済み、実デプロイは未実施）
+   - **`unzip`/`zip`依存の解消**: `infra/lambda/Dockerfile`でLambdaのPythonベース
+     イメージ(`public.ecr.aws/lambda/python:3.12`)に`zip`/`unzip`を追加
+   - **`/mnt/skills/...`依存の解消**: `generate_minutes.py`が使う`merge_runs.py`
+     （Claude Codeのdocxスキル由来）を`src/vendor/`に同梱し、スキル環境がなくても
+     動作するようにした。実際にダウンロードした本物のテンプレートdocxを使い、
+     vendor版のみで議事録生成が正しく動作することを2026-09-14に確認済み
+     （出席者名・テーマ・本文が正しく置き換わることを`word/document.xml`で確認）
+   - **IaC**: AWS SAM（`infra/lambda/template.yaml`）。Lambda（コンテナイメージ）+
+     API Gateway(HTTP API)構成。シークレット4つ（`GOOGLE_SERVICE_ACCOUNT_JSON`,
+     `DRIVE_FOLDER_ID`, `ANTHROPIC_API_KEY`, `ZOOM_WEBHOOK_SECRET_TOKEN`）は
+     `sam deploy --guided`実行時にパラメータとして入力する（テンプレートに平文で
+     書かない）
+   - ⚠️ **未実施**: このセッションの実行環境にはDockerデーモンとAWS CLI/SAM CLIが
+     ないため、実際の`docker build` / `sam deploy`は行っていない。手順は
+     `infra/lambda/README.md`にまとめたので、ユーザー側のAWS環境で実行が必要
 4. ~~`generate_minutes.py` と `drive_sync.py` を1つのLambdaハンドラとして結合~~ ✅ 完了（2026-09-14）
    - 結合にあたり、全体フローのStep3（Anthropic APIでの文字起こし要約）が
      コードとして未実装だったため、`src/summarize.py` として新規実装した

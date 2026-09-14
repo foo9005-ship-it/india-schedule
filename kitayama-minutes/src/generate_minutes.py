@@ -21,7 +21,11 @@ import sys
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
 
-MERGE_RUNS = "/mnt/skills/public/docx/scripts/merge_runs.py"
+# Claude Codeのdocxスキルが存在する開発環境ではそちらを優先し、なければ
+# リポジトリ同梱のvendor版（Lambda等、docxスキルが存在しない環境向け）を使う。
+_SKILL_MERGE_RUNS = Path("/mnt/skills/public/docx/scripts/merge_runs.py")
+_VENDORED_MERGE_RUNS = Path(__file__).parent / "vendor" / "merge_runs.py"
+MERGE_RUNS = str(_SKILL_MERGE_RUNS if _SKILL_MERGE_RUNS.exists() else _VENDORED_MERGE_RUNS)
 
 # ---- paraId generator -------------------------------------------------
 

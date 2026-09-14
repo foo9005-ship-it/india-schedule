@@ -1,5 +1,6 @@
 # --- Step4: generate_minutes.py ---
-# 標準ライブラリのみで動作（unzip/zipコマンドに依存）。追加パッケージなし。
+# unzip/zipコマンド(外部プロセス)に依存。src/vendor/merge_runs.pyが使うXMLパーサ:
+defusedxml
 
 # --- Step5: drive_sync.py ---
 google-api-python-client

@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  北山文化圏センター 打合せ議事録自動生成 - Zoom Webhook受信〜Drive アップロードまでの
+  Lambda(コンテナイメージ)。API Gateway(HTTP API)経由でZoomのWebhookを受ける。
+
+Parameters:
+  GoogleServiceAccountJson:
+    Type: String
+    NoEcho: true
+    Description: drive_sync.py用サービスアカウントJSON鍵の中身(文字列)
+  DriveFolderId:
+    Type: String
+    Default: 1dGlLk9n4SF5EnuJjphGd11FkN3XRPpw1
+    Description: 議事録アップロード先Google DriveフォルダID(「議事録_自動生成」)
+  AnthropicApiKey:
+    Type: String
+    NoEcho: true
+    Description: Step3(要約)で使うAnthropic APIキー
+  ZoomWebhookSecretToken:
+    Type: String
+    NoEcho: true
+    Description: Zoom AppのSecret Token(Webhook署名検証用)
+
+Resources:
+  MinutesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 1024
+      # Zoomは3秒以内の応答を要求するが、本関数はVTT取得〜AI要約〜docx生成〜
+      # アップロードまでを同期実行するため長めに確保している(README記載の既知の制約)。
+      Timeout: 120
+      Environment:
+        Variables:
+          GOOGLE_SERVICE_ACCOUNT_JSON: !Ref GoogleServiceAccountJson
+          DRIVE_FOLDER_ID: !Ref DriveFolderId
+          ANTHROPIC_API_KEY: !Ref AnthropicApiKey
+          ZOOM_WEBHOOK_SECRET_TOKEN: !Ref ZoomWebhookSecretToken
+      Events:
+        ZoomWebhook:
+          Type: HttpApi
+          Properties:
+            Path: /webhook/zoom
+            Method: POST
+    Metadata:
+      DockerTag: latest
+      DockerContext: ../../
+      Dockerfile: infra/lambda/Dockerfile
+
+Outputs:
+  ZoomWebhookUrl:
+    Description: ZoomのEvent SubscriptionsのWebhook URLに設定するURL
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/webhook/zoom"
