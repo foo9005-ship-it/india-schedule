@@ -1,0 +1,19 @@
+{
+  "meeting_date_yyyymmdd": "20260910",
+  "meeting_number": "5",
+  "datetime_display": "2026年9月10日（木）　14：00　～　15：00",
+  "place": "今帰仁村役場　会議室",
+  "attendee_groups": [
+    {"affiliation": "今帰仁村", "names": "山田太郎、比嘉花子"},
+    {"affiliation": "まち・しまデザイン部", "names": "末吉司"}
+  ],
+  "theme": "北山文化圏センター産業連携ゾーン等基本計画（案）の内容確認",
+  "body_blocks": [
+    {"type": "heading", "text": "１．前回議事録の確認"},
+    {"type": "bullet0", "text": "前回指摘事項への対応状況を報告した。"},
+    {"type": "heading", "text": "２．基本計画（案）について"},
+    {"type": "bullet0", "text": "産業連携ゾーンの配置案を提示した。"},
+    {"type": "bullet1", "text": "駐車場動線について再検討することとなった。"},
+    {"type": "bullet0", "text": "宿題：駐車場動線の修正案を作成する（担当：まち・しまデザイン部）"}
+  ]
+}

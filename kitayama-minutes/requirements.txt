@@ -1,0 +1,12 @@
+# --- Step4: generate_minutes.py ---
+# 標準ライブラリのみで動作（unzip/zipコマンドに依存）。追加パッケージなし。
+
+# --- Step5: drive_sync.py ---
+google-api-python-client
+google-auth
+
+# --- Step1: zoom_webhook.py（実装時に使用） ---
+# flask もしくは fastapi + uvicorn（デプロイ先に応じて選択）
+
+# --- Step3: Anthropic API呼び出し（実装時に使用） ---
+# anthropic
