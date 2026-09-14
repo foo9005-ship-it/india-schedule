@@ -30,7 +30,7 @@ Zoom録画 → 文字起こし → AI要約(JSON) → Word議事録(.docx)生成
 | コンポーネント | 状態 |
 |---|---|
 | `src/generate_minutes.py` | ✅ 完成・動作確認済み |
-| `src/drive_sync.py` | ✅ コード完成／🔧 サービスアカウント接続手順を用意（`infra/gcp/service_account_setup.md`）、実接続はユーザー作業待ち |
+| `src/drive_sync.py` | ✅ サービスアカウント作成・Drive API接続・疎通確認まで完了（プロジェクト`giziroku-508607`） |
 | `prompts/system_prompt_v2.md` | ✅ 完成（Step3用システムプロンプト） |
 | Zoom Webhook受信 | ❌ 未実装 |
 | Lambda/Cloud Functions統合ハンドラ | ❌ 未実装（`src/drive_sync.py`内にサンプルコードのみ） |
@@ -63,10 +63,12 @@ kitayama-minutes/
 ## 今後の作業（優先順位は要相談）
 
 1. Zoomの録画完了Webhook（`recording.completed`）受信部分の実装 → `src/zoom_webhook.py`
-2. Google Cloudサービスアカウント作成・Drive API接続 → `src/drive_sync.py` を実接続
-   - 手順書: [`infra/gcp/service_account_setup.md`](infra/gcp/service_account_setup.md)
-   - 接続確認: `src/test_drive_connection.py`
-   - 対象フォルダ「２議事録」（`DRIVE_FOLDER_ID=1_brqDoUoSx5kjIn5uGXOAn7Snzvmktjd`）は特定済み
+2. ~~Google Cloudサービスアカウント作成・Drive API接続~~ ✅ 完了（2026-09-14）
+   - サービスアカウント: `kitayama-minutes-drive-sync@giziroku-508607.iam.gserviceaccount.com`
+   - 対象フォルダ「２議事録」（`DRIVE_FOLDER_ID=1_brqDoUoSx5kjIn5uGXOAn7Snzvmktjd`）への接続確認済み
+   - ⚠️ **要対応**: 現在は同フォルダが「リンクを知っている全員が編集者」の公開設定のままで、
+     それによって接続できている状態。サービスアカウントをフォルダに明示的に共有した上で
+     公開設定を解除することをお勧めする（フォルダのオーナーは `tomari.s078@gmail.com`）
 3. Make シナリオ、または AWS Lambda / GCP Cloud Functions としてデプロイ → `infra/`
 4. `generate_minutes.py` と `drive_sync.py` を1つのLambdaハンドラとして結合 → `src/handler.py`
 
