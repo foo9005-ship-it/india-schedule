@@ -30,7 +30,7 @@ Zoom録画 → 文字起こし → AI要約(JSON) → Word議事録(.docx)生成
 | コンポーネント | 状態 |
 |---|---|
 | `src/generate_minutes.py` | ✅ 完成・動作確認済み |
-| `src/drive_sync.py` | ✅ コード完成／❌ サービスアカウント未接続 |
+| `src/drive_sync.py` | ✅ コード完成／🔧 サービスアカウント接続手順を用意（`infra/gcp/service_account_setup.md`）、実接続はユーザー作業待ち |
 | `prompts/system_prompt_v2.md` | ✅ 完成（Step3用システムプロンプト） |
 | Zoom Webhook受信 | ❌ 未実装 |
 | Lambda/Cloud Functions統合ハンドラ | ❌ 未実装（`src/drive_sync.py`内にサンプルコードのみ） |
@@ -64,6 +64,9 @@ kitayama-minutes/
 
 1. Zoomの録画完了Webhook（`recording.completed`）受信部分の実装 → `src/zoom_webhook.py`
 2. Google Cloudサービスアカウント作成・Drive API接続 → `src/drive_sync.py` を実接続
+   - 手順書: [`infra/gcp/service_account_setup.md`](infra/gcp/service_account_setup.md)
+   - 接続確認: `src/test_drive_connection.py`
+   - 対象フォルダ「２議事録」（`DRIVE_FOLDER_ID=1_brqDoUoSx5kjIn5uGXOAn7Snzvmktjd`）は特定済み
 3. Make シナリオ、または AWS Lambda / GCP Cloud Functions としてデプロイ → `infra/`
 4. `generate_minutes.py` と `drive_sync.py` を1つのLambdaハンドラとして結合 → `src/handler.py`
 
