@@ -87,20 +87,45 @@ def get_latest_base(local_dir="/tmp") -> str:
     return local_path
 
 
+DOCX_MIMETYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+
+def _unique_filename(service, folder_id: str, filename: str) -> str:
+    """
+    同名ファイルが既にフォルダ内にあれば、同日複数回生成のケースに備えて
+    「_2」「_3」...と連番を付けたファイル名を返す。
+    """
+    stem = Path(filename).stem
+    suffix = Path(filename).suffix
+    candidate = filename
+    n = 1
+    while True:
+        query = (
+            f"'{folder_id}' in parents and trashed = false "
+            f"and name = '{candidate}'"
+        )
+        results = service.files().list(q=query, fields="files(id)", pageSize=1).execute()
+        if not results.get("files"):
+            return candidate
+        n += 1
+        candidate = f"{stem}_{n}{suffix}"
+
+
 def upload_result(local_path: str) -> str:
     """
     生成された.docxをDRIVE_FOLDER_IDにアップロードする。
+    同日に複数回生成された場合は、ファイル名に連番を付けて重複を避ける。
+    アップロード時はmimetypeを明示的にdocxのまま指定しており、Googleドキュメント形式
+    への自動変換は発生しない（変換されるとXML構造が失われ、次回以降のテンプレートとして
+    使えなくなるため、明示指定は重要）。
     戻り値はアップロードされたファイルのGoogle Drive上のID。
     """
     service = _get_drive_service()
     folder_id = os.environ["DRIVE_FOLDER_ID"]
 
-    filename = Path(local_path).name
-    file_metadata = {"name": filename, "parents": [folder_id]}
-    media = MediaFileUpload(
-        local_path,
-        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    )
+    filename = _unique_filename(service, folder_id, Path(local_path).name)
+    file_metadata = {"name": filename, "parents": [folder_id], "mimeType": DOCX_MIMETYPE}
+    media = MediaFileUpload(local_path, mimetype=DOCX_MIMETYPE)
     uploaded = service.files().create(
         body=file_metadata, media_body=media, fields="id, webViewLink"
     ).execute()
